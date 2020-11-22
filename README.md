@@ -30,7 +30,7 @@ It translates a Knot.s Markdown file to a self-contained HTML file, or to a PDF.
 
 ### Windows
 
-[Download here the latest build !](https://github.com/truelossless/Knots/releases/latest)
+[Download here the latest build !](https://github.com/truelossless/Knot.s/releases/latest)
 
 ### Other OS
 
@@ -138,6 +138,6 @@ I used to do something similar with Pandoc, but it had several limitations. LaTe
 
 ## Contributing
 
-I'm not a good CSS designer, so if you want to contribute to make the CSS more awesome or add other themes, I'll be very thanksfull !
+I'm not a good CSS designer, so if you want to contribute to make the CSS more awesome or add other themes, I'll be very thankful !
 
 Any other help regarding the code is also greatly appreciated.
