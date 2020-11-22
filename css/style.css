@@ -1,0 +1,111 @@
+body {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 20px;
+  line-height: 2em;
+  background-color: #fff;
+  color: black;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #222;
+    color: white;
+  }
+}
+
+i {
+  font-style: italic;
+}
+
+b {
+  font-weight: bold;
+}
+
+h1,
+h2,
+h3 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+hr {
+  width: 100%;
+  max-width: 960px;
+  border: none;
+  border-top: 1px solid #666;
+}
+
+svg {
+  position: relative;
+  top: 0.125em;
+  height: 1em;
+  width: 1em;
+}
+
+header {
+  margin-bottom: 70px;
+}
+
+#doctitle {
+  padding: 0 15px 0 15px;
+  margin: 20px auto 20px auto;
+  font-size: 2.2em;
+  max-width: 960px;
+  text-align: left;
+}
+
+@media (min-width: 960px) {
+  #doctitle {
+    margin-top: 80px;
+  }
+}
+
+.docinfo {
+  margin: auto;
+  padding: 0 15px 0 15px;
+  width: 100%;
+  max-width: 960px;
+}
+
+.container {
+  padding: 0 15px 0 15px;
+  width: 100%;
+  max-width: 720px;
+  margin: auto;
+}
+
+.container-lg {
+  width: 100%;
+  max-width: 960px;
+  margin: auto;
+}
+
+.codeinline {
+  border-radius: 5px;
+  padding: 7px 5px 7px 5px;
+  background: #eee;
+}
+
+@media (prefers-color-scheme: dark) {
+  .codeinline {
+    background: #111;
+  }
+}
+
+.codeblock {
+  margin-top: 50px !important;
+  margin-bottom: 50px !important;
+}
+
+.discreet {
+  color: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+  .discreet {
+    color: #999;
+  }
+}
+
+#license {
+  margin: 100px auto 15px auto;
+}

@@ -1,0 +1,80 @@
+name: ci
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # build croco on every OS
+  build:
+    # let's use a matrix so we can later add more OS
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v2
+
+      - name: Build Knot.s release
+        run: |
+          cargo build --release
+
+      - name: Zip Knot.s
+        run: |
+          mv wkhtmltox.dll target/release/
+          cd target/release
+          7z a knots.zip knots.exe wkhtmltox.dll
+      - name: Upload zip
+        uses: actions/upload-artifact@v2
+        with:
+          name: knots-${{ matrix.os }}
+          path: target/release/knots.zip
+
+  # upload the resulting binaries to github releases
+  upload:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # retreive the previously saved binaries
+      - uses: actions/download-artifact@v2
+        with:
+          name: knots-windows-latest
+
+      # get the commit hash
+      # https://github.community/t/add-short-sha-to-github-context/16418/11
+      - name: get commit infos
+        id: commit
+        run: echo "::set-output name=hash::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
+      - name: create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.commit.outputs.hash }}
+          release_name: Release ${{ steps.commit.outputs.hash }}
+          body: This is an automated build for commit ${{ steps.commit.outputs.hash }}.
+          draft: false
+          prerelease: true
+
+      - name: upload Windows binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./knots.zip
+          asset_name: knots-${{ steps.commit.outputs.hash }}.zip
+          asset_content_type: application/zip
