@@ -133,7 +133,7 @@ I used to do something similar with Pandoc, but it had several limitations. LaTe
 
 ## Known issues
 
-- Line breaks can cause the parser to fail
+- The summary is at the end of the PDF
 - Font in code blocks is broken if you use LaTeX, in PDFs
 
 ## Contributing

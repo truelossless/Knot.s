@@ -30,14 +30,14 @@ pub fn get_roman_numeral(num: usize) -> String {
 
 /// Gets a lv2 title number as a letter
 /// CAVEAT: only 26 possibilities
-pub fn get_alpha_numeral(mut num: usize) -> &'static str {
+pub fn get_alpha_numeral(mut num: usize) -> String {
     num -= 1;
 
     if num >= 25 {
         num = 25
     }
 
-    &ALPHABET[num..num + 1]
+    ALPHABET[num..num + 1].to_owned()
 }
 
 /// Wkhtmltopdf 0.12 doesn't support template literals 🤣🤣🤣🔫

@@ -79,7 +79,7 @@ pub fn main() {
         let mut pdf_app = PdfApplication::new().expect("Failed to init PDF application");
         let mut pdfout = pdf_app
             .builder()
-            .margin((Size::Millimeters(10), Size::Millimeters(0)))
+            .margin(Size::Millimeters(0))
             .title(&doc_title)
             .build_from_html(&result)
             .expect("failed to build pdf");

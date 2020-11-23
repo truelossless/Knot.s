@@ -10,6 +10,13 @@ pub fn transpile(parse_result: ParseResult) -> String {
 
     builder.start_tag("head", &[]);
     builder.start_orphan_tag("meta", &[("charset", "utf-8")]);
+    builder.start_orphan_tag(
+        "meta",
+        &[
+            ("name", "viewport"),
+            ("content", "width=device-width, initial-scale=1"),
+        ],
+    );
 
     builder.start_tag("title", &[]);
     builder.write_content(&parse_result.document_title);
@@ -32,7 +39,7 @@ pub fn transpile(parse_result: ParseResult) -> String {
     // document title
     builder.start_tag("h1", &[("id", "doctitle")]);
     builder.write_content(&parse_result.document_title);
-    builder.end_tag();
+    builder.end_tag(); // </h1>
 
     // document authors
     if !parse_result.document_authors.is_empty() {
@@ -50,10 +57,50 @@ pub fn transpile(parse_result: ParseResult) -> String {
     }
     builder.end_tag(); // </header>
 
-    // put everything in a container
+    // put everything in a flex container
+    builder.start_tag("div", &[("class", "flex-container")]);
+    builder.start_tag("div", &[("class", "main-content")]);
     builder.start_tag("div", &[("class", "container")]);
     builder.write_knots_object(parse_result.root_object);
     builder.end_tag(); // </div>
+
+    // document license
+    if let Some(license) = parse_result.document_license {
+        builder.start_tag("div", &[("class", "docinfo discreet"), ("id", "license")]);
+        builder.start_orphan_tag("hr", &[]);
+        builder.write_content(include_str!("../icons/ereader.svg"));
+        builder.write_content(&format!(
+            "This work is available under the {} license",
+            license
+        ));
+        builder.end_tag() // </div>
+    }
+
+    builder.end_tag(); // </div> .main-content
+
+    builder.start_tag("div", &[("class", "summary-container")]);
+    builder.start_tag("div", &[("class", "summary")]);
+    builder.inline_tag("h1", &[], "Summary");
+    builder.start_tag("div", &[("class", "summary-content")]);
+    let summary = builder.get_summary().to_vec();
+
+    for item in summary {
+        let item_class = format!("lvl{}", item.level);
+        builder.inline_tag(
+            "a",
+            &[
+                ("href", &format!("#{}", item.anchor)),
+                ("class", &item_class),
+            ],
+            &item.name,
+        );
+    }
+
+    builder.end_tag(); // </div> .summary-content
+    builder.end_tag(); // </div> .summary
+    builder.end_tag(); // </div> .summary-container
+
+    builder.end_tag(); // </div> .flex-content
 
     // NOTE: for some reason including katex breaks the font on code blocks in PDFs.
     // I have no idea why, this behavior is not repoducible on any browser outside the one
@@ -83,18 +130,6 @@ pub fn transpile(parse_result: ParseResult) -> String {
         builder.start_tag("script", &[]);
         builder.write_content(include_str!("../js/prism.js"));
         builder.end_tag(); // </script>
-    }
-
-    // document license
-    if let Some(license) = parse_result.document_license {
-        builder.start_tag("div", &[("class", "docinfo discreet"), ("id", "license")]);
-        builder.start_orphan_tag("hr", &[]);
-        builder.write_content(include_str!("../icons/ereader.svg"));
-        builder.write_content(&format!(
-            "This work is available under the {} license",
-            license
-        ));
-        builder.end_tag() // </div>
     }
 
     builder.end_tag(); // </body>

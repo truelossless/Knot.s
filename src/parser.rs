@@ -156,18 +156,35 @@ fn paragraph(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
 
 /// Parses a level 1 title
 fn lvl1_title(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    let (other, contents) = delimited(tag("#"), ws(many1(any_text_modifier)), eolf)(input)?;
-    let title_obj = Box::new(knots_objects::Lv1Title { contents });
+    let (other, contents) = delimited(tag("#"), ws(not_line_ending), eolf)(input)?;
+    let title_obj = Box::new(knots_objects::Title {
+        contents: contents.to_owned(),
+        level: 1,
+    });
     Ok((other, title_obj))
 }
 
 /// Parses a level 2 title
 fn lvl2_title(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    let (other, contents) = delimited(tag("##"), ws(many1(any_text_modifier)), eolf)(input)?;
-    let title_obj = Box::new(knots_objects::Lv2Title { contents });
+    let (other, contents) = delimited(tag("##"), ws(not_line_ending), eolf)(input)?;
+    let title_obj = Box::new(knots_objects::Title {
+        contents: contents.to_owned(),
+        level: 2,
+    });
     Ok((other, title_obj))
 }
 
+/// Parses a level 3 title
+fn lvl3_title(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, contents) = delimited(tag("###"), ws(not_line_ending), eolf)(input)?;
+    let title_obj = Box::new(knots_objects::Title {
+        contents: contents.to_owned(),
+        level: 3,
+    });
+    Ok((other, title_obj))
+}
+
+/// Parses a code block
 fn code_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, _) = tag("```")(input)?;
 
@@ -184,6 +201,7 @@ fn code_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, code_obj))
 }
 
+/// Parses a maths block
 fn maths_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, contents) = delimited(tag("$$"), take_until("$$"), tag("$$"))(input)?;
     let maths_obj = Box::new(knots_objects::MathsBlock {
@@ -195,6 +213,16 @@ fn maths_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
 
 /// Parses an object contained on one line
 fn any_object(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    let (other, _) = multispace0(input)?;
-    alt((lvl2_title, lvl1_title, code_block, maths_block, paragraph))(other)
+    delimited(
+        multispace0,
+        alt((
+            lvl3_title,
+            lvl2_title,
+            lvl1_title,
+            code_block,
+            maths_block,
+            paragraph,
+        )),
+        multispace0,
+    )(input)
 }

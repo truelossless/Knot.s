@@ -1,5 +1,12 @@
 use super::knots_objects::KnotsObject;
-use super::utils::escape_latex;
+use super::utils::{escape_latex, get_alpha_numeral, get_roman_numeral};
+
+#[derive(Clone)]
+pub struct Title {
+    pub level: u8,
+    pub name: String,
+    pub anchor: String,
+}
 
 /// A Builder used to generate HTML tags from Knot.s objects.
 pub struct Builder {
@@ -14,9 +21,11 @@ pub struct Builder {
     /// should we include katex ?
     pub should_include_katex: bool,
     /// the number of lv1 titles
-    pub lv1_titles: usize,
+    lv1_titles: usize,
     /// the number of lv2 titles since the last lv1 title
-    pub lv2_titles: usize,
+    lv2_titles: usize,
+    /// an array to keep track of the summary
+    titles: Vec<Title>,
     /// the number of maths blocks
     pub maths_blocks: usize,
     /// We need to populate katex blocks after the script inclusion
@@ -33,6 +42,7 @@ impl Builder {
             should_include_katex: false,
             lv1_titles: 0,
             lv2_titles: 0,
+            titles: Vec::new(),
             maths_blocks: 0,
             katex_buf: String::new(),
         }
@@ -120,6 +130,70 @@ impl Builder {
     pub fn end_tag(&mut self) {
         self.indentation -= 1;
         self.buf += &format!("{}</{}>\n", self.blanks(), self.tags_queue.pop().unwrap());
+    }
+
+    /// Returns the summary
+    pub fn get_summary(&self) -> &[Title] {
+        &self.titles
+    }
+
+    /// Adds a title to the summary
+    pub fn add_title(&mut self, level: u8, name: &str) -> Title {
+        let num;
+
+        match level {
+            1 => {
+                self.lv1_titles += 1;
+                // reset the count on lv2 titles since we're starting a new section
+                self.lv2_titles = 0;
+                num = get_roman_numeral(self.lv1_titles);
+            }
+
+            2 => {
+                self.lv2_titles += 1;
+                num = get_alpha_numeral(self.lv2_titles);
+            }
+            3 => num = String::new(),
+            _ => unreachable!(),
+        }
+
+        let mut anchor = String::new();
+
+        if level >= 1 {
+            anchor += &format!("{}-", self.lv1_titles);
+        }
+
+        if level >= 2 {
+            anchor += &format!("{}-", self.lv2_titles);
+        }
+
+        if level >= 3 {
+            anchor += "part-";
+        }
+
+        let escaped_name: String = name
+            .replace(" ", "-")
+            .chars()
+            .into_iter()
+            .filter(|&c| c.is_ascii_alphanumeric() || "_-!?".contains(c))
+            .collect();
+
+        anchor.push_str(&escaped_name);
+
+        let name = if !num.is_empty() {
+            format!("{} - {}", num, name)
+        } else {
+            name.to_owned()
+        };
+
+        let title = Title {
+            anchor,
+            level,
+            name,
+        };
+
+        self.titles.push(title.clone());
+        title
     }
 
     /// Returns the number of tabs corresponding to the indentation

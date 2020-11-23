@@ -343,7 +343,7 @@ div.code-toolbar {
 
 div.code-toolbar > .toolbar {
   position: absolute;
-  top: -0.4em;
+  top: -0.3em;
   right: 0;
 }
 
@@ -370,10 +370,10 @@ div.code-toolbar > .toolbar button {
 div.code-toolbar > .toolbar a,
 div.code-toolbar > .toolbar button,
 div.code-toolbar > .toolbar span {
-  box-sizing: border-box;
+  font-family: "Open Sans";
   color: #fff;
   font-size: 0.7em;
-  padding: 0.45em;
+  padding: 0.4em 0.4em 0.4em 0.6em;
   background: rgba(98, 114, 164, 1);
   border-bottom-left-radius: 8px;
 }

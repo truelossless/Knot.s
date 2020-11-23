@@ -1,5 +1,5 @@
 use super::builder::Builder;
-use super::utils::{escape_html, get_alpha_numeral, get_roman_numeral};
+use super::utils::escape_html;
 
 /// Trait representing any Knot.s Object.
 pub trait KnotsObject {
@@ -18,35 +18,52 @@ impl KnotsObject for Root {
     }
 }
 
-pub struct Lv1Title {
-    pub contents: Vec<Box<dyn KnotsObject>>,
+const LINK_SVG: &str = include_str!("../icons/link.svg");
+
+pub struct Title {
+    pub contents: String,
+    pub level: u8,
 }
 
-impl KnotsObject for Lv1Title {
+impl KnotsObject for Title {
     fn write_html(&self, builder: &mut Builder) {
-        // reset the count on lv2 titles since we're starting a new section
-        builder.lv2_titles = 0;
-        builder.lv1_titles += 1;
-        let num = get_roman_numeral(builder.lv1_titles);
-        builder.start_tag("h2", &[]);
-        builder.write_content(&format!("{} - ", num));
-        builder.write_knots_objects(&self.contents);
+        let title_container;
+        let next_container;
+
+        let title = builder.add_title(self.level, &self.contents);
+
+        match self.level {
+            1 => {
+                title_container = "container-lvl1";
+                next_container = "container-lvl2";
+            }
+
+            2 => {
+                title_container = "container-lvl2";
+                next_container = "container";
+            }
+            3 => {
+                title_container = "container";
+                next_container = "container";
+            }
+            _ => unreachable!(),
+        }
+
+        let tag = format!("h{}", self.level + 1);
+        let level_class = format!("lvl{}", self.level);
+
+        builder.end_tag(); // </div>
+
+        // switch to the larger container
+        builder.start_tag("div", &[("class", &title_container)]);
+        builder.start_tag(&tag, &[("class", &level_class), ("id", &title.anchor)]);
+        builder.start_tag("a", &[("href", &format!("#{}", &title.anchor))]);
+        builder.write_content(&title.name);
+        builder.write_content(LINK_SVG);
+        builder.end_tag();
         builder.end_tag(); // </h2>
-    }
-}
-
-pub struct Lv2Title {
-    pub contents: Vec<Box<dyn KnotsObject>>,
-}
-
-impl KnotsObject for Lv2Title {
-    fn write_html(&self, builder: &mut Builder) {
-        builder.lv2_titles += 1;
-        let num = get_alpha_numeral(builder.lv2_titles);
-        builder.start_tag("h3", &[]);
-        builder.write_content(&format!("{} - ", num));
-        builder.write_knots_objects(&self.contents);
-        builder.end_tag(); // </h3>
+        builder.end_tag(); // </div>
+        builder.start_tag("div", &[("class", &next_container)]);
     }
 }
 
@@ -111,7 +128,7 @@ impl KnotsObject for InlineCode {
     fn write_html(&self, builder: &mut Builder) {
         builder.inline_tag(
             "code",
-            &[("class", "codeinline")],
+            &[("class", "inline-code")],
             &escape_html(&self.contents),
         );
     }
@@ -171,7 +188,7 @@ impl KnotsObject for MathsBlock {
         builder.should_include_katex = true;
         builder.maths_blocks += 1;
         let el_id = format!("maths{}", builder.maths_blocks);
-        builder.start_tag("div", &[("id", &el_id)]);
+        builder.start_tag("div", &[("id", &el_id), ("class", "mathsblock")]);
         builder.end_tag(); // </div>
         builder.write_katex_content(&self.contents, &el_id);
     }
