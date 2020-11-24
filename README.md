@@ -19,7 +19,6 @@ It translates a Knot.s Markdown file to a self-contained HTML file, or to a PDF.
 - Links
 - Images
 - Tables
-- Titles after `##`
 
 ### Planned
 
@@ -49,8 +48,8 @@ See `examples/` for examples !
 
 ### Text modifiers
 
-- Surround text with `*` for _italic_:
-- Surround text with `**` for **bold**
+- Surround text with `*` or `_` for _italic_:
+- Surround text with `**` or `__` for **bold**
 - Surround text with `` ` `` to write `inline code`
 - Surround text with `$` to write inline LaTeX
 

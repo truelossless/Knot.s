@@ -49,7 +49,7 @@ impl KnotsObject for Title {
             _ => unreachable!(),
         }
 
-        let tag = format!("h{}", self.level + 1);
+        let tag = format!("h{}", self.level);
         let level_class = format!("lvl{}", self.level);
 
         builder.end_tag(); // </div>

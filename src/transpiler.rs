@@ -36,8 +36,9 @@ pub fn transpile(parse_result: ParseResult) -> String {
 
     builder.start_tag("body", &[]);
     builder.start_tag("header", &[]);
+
     // document title
-    builder.start_tag("h1", &[("id", "doctitle")]);
+    builder.start_tag("p", &[("id", "doctitle")]);
     builder.write_content(&parse_result.document_title);
     builder.end_tag(); // </h1>
 
@@ -60,9 +61,9 @@ pub fn transpile(parse_result: ParseResult) -> String {
     // put everything in a flex container
     builder.start_tag("div", &[("class", "flex-container")]);
     builder.start_tag("div", &[("class", "main-content")]);
-    builder.start_tag("div", &[("class", "container")]);
+    builder.start_tag("div", &[("class", "lvl1-container")]);
     builder.write_knots_object(parse_result.root_object);
-    builder.end_tag(); // </div>
+    builder.end_tag(); // </div> .lvl1-container
 
     // document license
     if let Some(license) = parse_result.document_license {
@@ -80,7 +81,7 @@ pub fn transpile(parse_result: ParseResult) -> String {
 
     builder.start_tag("div", &[("class", "summary-container")]);
     builder.start_tag("div", &[("class", "summary")]);
-    builder.inline_tag("h1", &[], "Summary");
+    builder.inline_tag("p", &[], "Summary");
     builder.start_tag("div", &[("class", "summary-content")]);
     let summary = builder.get_summary().to_vec();
 

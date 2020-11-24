@@ -43,8 +43,7 @@ b {
 
 h1,
 h2,
-h3,
-h4 {
+h3 {
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
   font-weight: normal;
 }
@@ -118,7 +117,8 @@ header {
   top: 25px;
 }
 
-.summary h1 {
+.summary p {
+  font-family: "Open Sans", Arial, Helvetica, sans-serif;
   font-size: 1.6em;
   text-align: center;
 }

@@ -75,7 +75,7 @@ pub fn parse(file_name: &str) -> Result<ParseResult> {
 
 /// Parses a raw string
 fn basic(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    let (other, contents) = is_not("`*\n\r#$")(input)?;
+    let (other, contents) = is_not("`*\n\r#$_")(input)?;
     let raw = Box::new(knots_objects::BasicText {
         contents: contents.to_owned(),
     });
@@ -83,16 +83,30 @@ fn basic(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, raw))
 }
 
-/// Parses an italic string
-fn italic(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+/// Parses an italic string using `*`
+fn italic1(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, contents) = delimited(tag("*"), many1(any_text_modifier), tag("*"))(input)?;
     let italic_obj = Box::new(knots_objects::Italic { contents });
     Ok((other, italic_obj))
 }
 
-/// Parses a bold string
-fn bold(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+/// Parses an italic string using `_`
+fn italic2(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, contents) = delimited(tag("_"), many1(any_text_modifier), tag("_"))(input)?;
+    let italic_obj = Box::new(knots_objects::Italic { contents });
+    Ok((other, italic_obj))
+}
+
+/// Parses a bold string using `**`
+fn bold1(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, contents) = delimited(tag("**"), many1(any_text_modifier), tag("**"))(input)?;
+    let bold_obj = Box::new(knots_objects::Bold { contents });
+    Ok((other, bold_obj))
+}
+
+/// Parses a bold string using `__`
+fn bold2(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, contents) = delimited(tag("__"), many1(any_text_modifier), tag("__"))(input)?;
     let bold_obj = Box::new(knots_objects::Bold { contents });
     Ok((other, bold_obj))
 }
@@ -118,7 +132,15 @@ fn inline_maths(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
 
 /// Parses as a bold, italic or raw string
 fn any_text_modifier(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    alt((bold, italic, inline_maths, inline_code, basic))(input)
+    alt((
+        bold1,
+        bold2,
+        italic1,
+        italic2,
+        inline_maths,
+        inline_code,
+        basic,
+    ))(input)
 }
 
 /// Matches if we're at the end of a line or of the file

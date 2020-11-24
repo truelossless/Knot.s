@@ -5,7 +5,7 @@
 
 # A weird first part
 
-HEY LOOK I'M * SUPER **BOLD** *
+HEY LOOK I'M _ SUPER **BOLD** _
 
 `console.log()` rocks even if it's a little bit long to type.
 
