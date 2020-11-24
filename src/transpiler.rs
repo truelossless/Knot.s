@@ -5,12 +5,12 @@ use super::parser::ParseResult;
 pub fn transpile(parse_result: ParseResult) -> String {
     let mut builder = Builder::new();
 
-    builder.start_orphan_tag("!DOCTYPE html", &[]);
+    builder.orphan_tag("!DOCTYPE html", &[]);
     builder.start_tag("html", &[]);
 
     builder.start_tag("head", &[]);
-    builder.start_orphan_tag("meta", &[("charset", "utf-8")]);
-    builder.start_orphan_tag(
+    builder.orphan_tag("meta", &[("charset", "utf-8")]);
+    builder.orphan_tag(
         "meta",
         &[
             ("name", "viewport"),
@@ -68,7 +68,7 @@ pub fn transpile(parse_result: ParseResult) -> String {
     // document license
     if let Some(license) = parse_result.document_license {
         builder.start_tag("div", &[("class", "docinfo discreet"), ("id", "license")]);
-        builder.start_orphan_tag("hr", &[]);
+        builder.orphan_tag("hr", &[]);
         builder.write_content(include_str!("../icons/ereader.svg"));
         builder.write_content(&format!(
             "This work is available under the {} license",

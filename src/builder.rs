@@ -20,6 +20,8 @@ pub struct Builder {
     pub should_include_prism: bool,
     /// should we include katex ?
     pub should_include_katex: bool,
+    /// keep track of the current container class
+    pub current_container: String,
     /// the number of lv1 titles
     lv1_titles: usize,
     /// the number of lv2 titles since the last lv1 title
@@ -40,6 +42,7 @@ impl Builder {
             tags_queue: Vec::new(),
             should_include_prism: false,
             should_include_katex: false,
+            current_container: String::new(),
             lv1_titles: 0,
             lv2_titles: 0,
             titles: Vec::new(),
@@ -58,7 +61,7 @@ impl Builder {
     }
 
     /// Starts an orphan tag
-    pub fn start_orphan_tag(&mut self, tag_name: &str, attributes: &[(&str, &str)]) {
+    pub fn orphan_tag(&mut self, tag_name: &str, attributes: &[(&str, &str)]) {
         self.buf += &self.format_start_tag(tag_name, attributes);
     }
 

@@ -1,3 +1,5 @@
+use base64::encode;
+
 use super::builder::Builder;
 use super::utils::escape_html;
 
@@ -63,7 +65,8 @@ impl KnotsObject for Title {
         builder.end_tag();
         builder.end_tag(); // </h2>
         builder.end_tag(); // </div>
-        builder.start_tag("div", &[("class", &next_container)]);
+        builder.start_tag("div", &[("class", next_container)]);
+        builder.current_container = next_container.to_owned()
     }
 }
 
@@ -82,7 +85,7 @@ pub struct LineBreak {}
 
 impl KnotsObject for LineBreak {
     fn write_html(&self, builder: &mut Builder) {
-        builder.start_orphan_tag("br", &[]);
+        builder.orphan_tag("hr", &[]);
     }
 }
 
@@ -120,6 +123,52 @@ impl KnotsObject for Bold {
     }
 }
 
+pub struct Link {
+    pub name: String,
+    pub link: String,
+}
+
+impl KnotsObject for Link {
+    fn write_html(&self, builder: &mut Builder) {
+        builder.inline_tag("a", &[("href", &self.link), ("class", "link")], &self.name);
+    }
+}
+
+pub struct Image {
+    pub alt: String,
+    pub link: String,
+}
+
+impl KnotsObject for Image {
+    fn write_html(&self, builder: &mut Builder) {
+        builder.end_tag(); // </div>
+        builder.start_tag("div", &[("class", "container-lg")]);
+
+        if self.link.starts_with("http://") || self.link.starts_with("https://") {
+            // include directly the link if it's from internet
+            builder.orphan_tag("img", &[("alt", &self.alt), ("src", &self.link)]);
+        } else {
+            // else if it's from the disk load it as base64
+            let file = std::fs::read(&self.link).expect("Unable to open image");
+            let base64_img = format!("data:application/octet-stream;base64,{}", encode(file));
+            builder.orphan_tag("img", &[("alt", &self.alt), ("src", &base64_img)]);
+        };
+
+        builder.end_tag();
+
+        let current_container = builder.current_container.clone();
+        builder.start_tag("div", &[("class", &current_container)]);
+    }
+}
+
+pub struct HorizontalRule {}
+
+impl KnotsObject for HorizontalRule {
+    fn write_html(&self, builder: &mut Builder) {
+        builder.orphan_tag("hr", &[]);
+    }
+}
+
 pub struct InlineCode {
     pub contents: String,
 }
@@ -143,8 +192,7 @@ impl KnotsObject for InlineMaths {
         builder.should_include_katex = true;
         builder.maths_blocks += 1;
         let el_id = format!("maths{}", builder.maths_blocks);
-        builder.start_tag("span", &[("id", &el_id)]);
-        builder.end_tag(); // </span>
+        builder.inline_tag("span", &[("id", &el_id)], "");
         builder.write_katex_content(&self.contents, &el_id);
     }
 }
@@ -175,7 +223,8 @@ impl KnotsObject for CodeBlock {
 
         // open another regular container after that
         builder.end_tag(); // </div>
-        builder.start_tag("div", &[("class", "container")]);
+        let current_container = builder.current_container.clone();
+        builder.start_tag("div", &[("class", &current_container)]);
     }
 }
 

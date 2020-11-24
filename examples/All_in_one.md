@@ -42,3 +42,13 @@ function transpile() {
 # Another important topic to bring up
 
 Can you guess the subject of this one ?
+Click this [link](https://google.fr) to find out !
+
+---
+
+Hehe there's still more to read there !
+Here's a picture for you:
+
+![cat](https://i.ytimg.com/vi/0oBx7Jg4m-o/maxresdefault.jpg)
+
+You can also include local pictures, and it will be embedded in the pdf / html !

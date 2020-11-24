@@ -6,6 +6,7 @@ use crate::knots_objects;
 use super::knots_objects::KnotsObject;
 use nom::{
     branch::alt,
+    bytes::complete::is_a,
     bytes::complete::is_not,
     bytes::complete::tag,
     bytes::complete::take_until,
@@ -75,7 +76,7 @@ pub fn parse(file_name: &str) -> Result<ParseResult> {
 
 /// Parses a raw string
 fn basic(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    let (other, contents) = is_not("`*\n\r#$_")(input)?;
+    let (other, contents) = is_not("`*\n\r#$_[")(input)?;
     let raw = Box::new(knots_objects::BasicText {
         contents: contents.to_owned(),
     });
@@ -111,6 +112,19 @@ fn bold2(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, bold_obj))
 }
 
+/// Parses a link
+fn link(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, name) = delimited(tag("["), take_until("]"), tag("]"))(input)?;
+    let (other, link) = delimited(tag("("), take_until(")"), tag(")"))(other)?;
+
+    let link_obj = Box::new(knots_objects::Link {
+        name: name.to_owned(),
+        link: link.to_owned(),
+    });
+
+    Ok((other, link_obj))
+}
+
 /// Parses inline code
 fn inline_code(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, contents) = delimited(tag("`"), is_not("`"), tag("`"))(input)?;
@@ -133,6 +147,7 @@ fn inline_maths(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
 /// Parses as a bold, italic or raw string
 fn any_text_modifier(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     alt((
+        link,
         bold1,
         bold2,
         italic1,
@@ -174,6 +189,17 @@ fn paragraph(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, contents) = terminated(many1(any_text_modifier), eolf)(input)?;
     let paragraph_obj = Box::new(knots_objects::Paragraph { contents });
     Ok((other, paragraph_obj))
+}
+
+/// Parses an horizontal ruler
+fn horizontal_ruler(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, _) = delimited(
+        alt((tag("***"), tag("---"), tag("___"))),
+        many0(is_a("*_-")),
+        eolf,
+    )(input)?;
+    let hr_obj = Box::new(knots_objects::HorizontalRule {});
+    Ok((other, hr_obj))
 }
 
 /// Parses a level 1 title
@@ -233,16 +259,32 @@ fn maths_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, maths_obj))
 }
 
+/// Parses an image
+fn image(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, _) = tag("!")(input)?;
+    let (other, name) = delimited(tag("["), take_until("]"), tag("]"))(other)?;
+    let (other, link) = delimited(tag("("), take_until(")"), tag(")"))(other)?;
+
+    let img_obj = Box::new(knots_objects::Image {
+        alt: name.to_owned(),
+        link: link.to_owned(),
+    });
+
+    Ok((other, img_obj))
+}
+
 /// Parses an object contained on one line
 fn any_object(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     delimited(
         multispace0,
         alt((
+            horizontal_ruler,
             lvl3_title,
             lvl2_title,
             lvl1_title,
             code_block,
             maths_block,
+            image,
             paragraph,
         )),
         multispace0,

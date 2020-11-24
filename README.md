@@ -6,6 +6,7 @@ It translates a Knot.s Markdown file to a self-contained HTML file, or to a PDF.
 ## Features
 
 - Write Markdown and render to beautiful HTML / PDF
+- Automatic summary generated from your titles
 - LaTeX support
 - HTML support
 - Syntax highlighting for code blocks
@@ -16,14 +17,14 @@ It translates a Knot.s Markdown file to a self-contained HTML file, or to a PDF.
 
 ### Not supported yet (but easy to add :D)
 
-- Links
-- Images
 - Tables
+- Lists
+- Quotes
 
 ### Planned
 
 - Implement all of the above
-- Colored titles
+- Warning/Error/Info boxes
 
 ## Installation
 
