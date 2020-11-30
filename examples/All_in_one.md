@@ -18,7 +18,7 @@ Let's talk about **something** here !
 Here's a block of LaTeX
 
 $$
-f'(x) = \frac{2x}{\sqrt{3x}}
+f'(x) = \dfrac{2x}{\sqrt{3x}}
 \int_{0}^{\pi} sin(x) dx
 $$
 
@@ -44,11 +44,38 @@ function transpile() {
 Can you guess the subject of this one ?
 Click this [link](https://google.fr) to find out !
 
----
+## First point
 
 Hehe there's still more to read there !
+
+---
+
 Here's a picture for you:
 
 ![cat](https://i.ytimg.com/vi/0oBx7Jg4m-o/maxresdefault.jpg)
 
 You can also include local pictures, and it will be embedded in the pdf / html !
+
+## Random citation
+
+Here's a quote for you:
+
+> Hey look buddy, I'm an engineer. That means I solve problems, not problems like "What is beauty?" Because that would fall within the purview of your conundrums of philosophy. I solve practical problems, for instance: how am I going to stop some mean mother Hubbard from tearing me a structurally superfluous be-hind? The answer, use a gun, and if that don't work... Use more gun. Take for instance this heavy caliber tripod mounted lil' old number designed by me, built by me, and you best hope... Not pointed at you.
+
+Where does this come from ?
+
+## Sexy Boxes :3
+
+?> Be careful of what you're doing !
+
+!> You could **DESTROY** something !
+
+x> And here we go :S
+
+## (Bugged) Lists :3
+
+- First item
+  More content on this first item ...
+- Second item
+
+As you can see it's not working correctly :S

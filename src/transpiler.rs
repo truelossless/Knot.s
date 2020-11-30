@@ -1,8 +1,12 @@
 use super::builder::Builder;
 use super::parser::ParseResult;
 
+pub struct KnotsOptions {
+    pub summary: bool,
+}
+
 /// Transpiles to an HTML page our Knot.s objects
-pub fn transpile(parse_result: ParseResult) -> String {
+pub fn transpile(parse_result: ParseResult, options: KnotsOptions) -> String {
     let mut builder = Builder::new();
 
     builder.orphan_tag("!DOCTYPE html", &[]);
@@ -79,27 +83,29 @@ pub fn transpile(parse_result: ParseResult) -> String {
 
     builder.end_tag(); // </div> .main-content
 
-    builder.start_tag("div", &[("class", "summary-container")]);
-    builder.start_tag("div", &[("class", "summary")]);
-    builder.inline_tag("p", &[], "Summary");
-    builder.start_tag("div", &[("class", "summary-content")]);
-    let summary = builder.get_summary().to_vec();
+    if options.summary {
+        builder.start_tag("div", &[("class", "summary-container")]);
+        builder.start_tag("div", &[("class", "summary")]);
+        builder.inline_tag("p", &[], "Summary");
+        builder.start_tag("div", &[("class", "summary-content")]);
+        let summary = builder.get_summary().to_vec();
 
-    for item in summary {
-        let item_class = format!("lvl{}", item.level);
-        builder.inline_tag(
-            "a",
-            &[
-                ("href", &format!("#{}", item.anchor)),
-                ("class", &item_class),
-            ],
-            &item.name,
-        );
+        for item in summary {
+            let item_class = format!("lvl{}", item.level);
+            builder.inline_tag(
+                "a",
+                &[
+                    ("href", &format!("#{}", item.anchor)),
+                    ("class", &item_class),
+                ],
+                &item.name,
+            );
+        }
+
+        builder.end_tag(); // </div> .summary-content
+        builder.end_tag(); // </div> .summary
+        builder.end_tag(); // </div> .summary-container
     }
-
-    builder.end_tag(); // </div> .summary-content
-    builder.end_tag(); // </div> .summary
-    builder.end_tag(); // </div> .summary-container
 
     builder.end_tag(); // </div> .flex-content
 

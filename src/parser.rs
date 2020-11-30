@@ -191,6 +191,35 @@ fn paragraph(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, paragraph_obj))
 }
 
+/// Parses a Blockquote
+fn block_quote(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, contents) = delimited(tag(">"), many1(any_text_modifier), eolf)(input)?;
+    let quote_obj = Box::new(knots_objects::BlockQuote { contents });
+
+    Ok((other, quote_obj))
+}
+
+fn info_box(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, contents) = delimited(tag("?>"), many1(any_text_modifier), eolf)(input)?;
+    let box_obj = Box::new(knots_objects::InfoBox { contents });
+
+    Ok((other, box_obj))
+}
+
+fn warning_box(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, contents) = delimited(tag("!>"), many1(any_text_modifier), eolf)(input)?;
+    let box_obj = Box::new(knots_objects::WarningBox { contents });
+
+    Ok((other, box_obj))
+}
+
+fn error_box(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, contents) = delimited(tag("x>"), many1(any_text_modifier), eolf)(input)?;
+    let box_obj = Box::new(knots_objects::ErrorBox { contents });
+
+    Ok((other, box_obj))
+}
+
 /// Parses an horizontal ruler
 fn horizontal_ruler(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, _) = delimited(
@@ -259,6 +288,27 @@ fn maths_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, maths_obj))
 }
 
+fn list_item(input: &str) -> IResult<&str, Vec<Box<dyn KnotsObject>>> {
+    let (other, mut first_contents) =
+        delimited(tag("-"), ws(many1(any_text_modifier)), eolf)(input)?;
+    // does the list item continue on the next line ?
+    let (other, next_contents) = opt(preceded(space1, many1(alt((list, paragraph)))))(other)?;
+
+    // unify both vectors
+    if let Some(mut contents) = next_contents {
+        first_contents.append(&mut contents);
+    }
+
+    Ok((other, first_contents))
+}
+
+// Parses a list
+fn list(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, contents) = many1(list_item)(input)?;
+    let list_obj = Box::new(knots_objects::List { contents });
+    Ok((other, list_obj))
+}
+
 /// Parses an image
 fn image(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, _) = tag("!")(input)?;
@@ -275,6 +325,8 @@ fn image(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
 
 /// Parses an object contained on one line
 fn any_object(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    multispace0(input)?;
+
     delimited(
         multispace0,
         alt((
@@ -282,9 +334,14 @@ fn any_object(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
             lvl3_title,
             lvl2_title,
             lvl1_title,
+            list,
             code_block,
             maths_block,
             image,
+            info_box,
+            warning_box,
+            error_box,
+            block_quote,
             paragraph,
         )),
         multispace0,

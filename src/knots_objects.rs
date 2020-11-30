@@ -20,8 +20,6 @@ impl KnotsObject for Root {
     }
 }
 
-const LINK_SVG: &str = include_str!("../icons/link.svg");
-
 pub struct Title {
     pub contents: String,
     pub level: u8,
@@ -81,11 +79,82 @@ impl KnotsObject for Paragraph {
     }
 }
 
-pub struct LineBreak {}
+pub struct BlockQuote {
+    pub contents: Vec<Box<dyn KnotsObject>>,
+}
 
-impl KnotsObject for LineBreak {
+impl KnotsObject for BlockQuote {
     fn write_html(&self, builder: &mut Builder) {
-        builder.orphan_tag("hr", &[]);
+        builder.start_tag("blockquote", &[]);
+        builder.write_knots_objects(&self.contents);
+        builder.end_tag(); // </blockquote>
+    }
+}
+
+const INFO_SVG: &str = include_str!("../icons/info.svg");
+pub struct InfoBox {
+    pub contents: Vec<Box<dyn KnotsObject>>,
+}
+
+impl KnotsObject for InfoBox {
+    fn write_html(&self, builder: &mut Builder) {
+        builder.start_tag("div", &[("class", "infobox")]);
+        builder.write_content(INFO_SVG);
+        builder.start_tag("p", &[]);
+        builder.write_knots_objects(&self.contents);
+        builder.end_tag(); // </p>
+        builder.end_tag(); // </div>
+    }
+}
+
+const WARNING_SVG: &str = include_str!("../icons/danger.svg");
+
+pub struct WarningBox {
+    pub contents: Vec<Box<dyn KnotsObject>>,
+}
+
+impl KnotsObject for WarningBox {
+    fn write_html(&self, builder: &mut Builder) {
+        builder.start_tag("div", &[("class", "warningbox")]);
+        builder.write_content(WARNING_SVG);
+        builder.start_tag("p", &[]);
+        builder.write_knots_objects(&self.contents);
+        builder.end_tag(); // </p>
+        builder.end_tag(); // </div>
+    }
+}
+
+const ERROR_SVG: &str = include_str!("../icons/close-o.svg");
+pub struct ErrorBox {
+    pub contents: Vec<Box<dyn KnotsObject>>,
+}
+
+impl KnotsObject for ErrorBox {
+    fn write_html(&self, builder: &mut Builder) {
+        builder.start_tag("div", &[("class", "errorbox")]);
+        builder.write_content(ERROR_SVG);
+        builder.start_tag("p", &[]);
+        builder.write_knots_objects(&self.contents);
+        builder.end_tag(); // </p>
+        builder.end_tag(); // </div>
+    }
+}
+
+pub struct List {
+    pub contents: Vec<Vec<Box<dyn KnotsObject>>>,
+}
+
+impl KnotsObject for List {
+    fn write_html(&self, builder: &mut Builder) {
+        builder.start_tag("ul", &[]);
+
+        for list_item in &self.contents {
+            builder.start_tag("li", &[]);
+            builder.write_knots_objects(list_item);
+            builder.end_tag(); // </li>
+        }
+
+        builder.end_tag(); // </ul>
     }
 }
 
@@ -122,6 +191,8 @@ impl KnotsObject for Bold {
         builder.end_tag() // </b>
     }
 }
+
+const LINK_SVG: &str = include_str!("../icons/link.svg");
 
 pub struct Link {
     pub name: String,

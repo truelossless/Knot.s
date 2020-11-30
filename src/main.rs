@@ -20,6 +20,9 @@ struct MyOptions {
     )]
     output: Option<String>,
 
+    #[options(no_short, help = "don't create a summary")]
+    no_summary: bool,
+
     #[options(help = "show knots version")]
     version: bool,
 
@@ -67,7 +70,12 @@ pub fn main() {
 
     let parse_result = parser::parse(&opts.input[0]).expect("Unable to read input file");
     let doc_title = parse_result.document_title.clone();
-    let result = transpiler::transpile(parse_result);
+
+    let user_opts = transpiler::KnotsOptions {
+        summary: !opts.no_summary,
+    };
+
+    let result = transpiler::transpile(parse_result, user_opts);
 
     if let Some(html) = html_output {
         let mut file = File::create(html).expect("Unable to create html file");
