@@ -150,7 +150,7 @@ impl KnotsObject for List {
 
         for list_item in &self.contents {
             builder.start_tag("li", &[]);
-            builder.write_knots_objects(list_item);
+            builder.write_knots_objects(&list_item);
             builder.end_tag(); // </li>
         }
 

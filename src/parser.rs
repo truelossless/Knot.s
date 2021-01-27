@@ -16,14 +16,14 @@ use nom::{
     character::complete::multispace0,
     character::complete::not_line_ending,
     character::complete::space0,
-    character::complete::space1,
-    combinator::eof,
-    combinator::opt,
+    character::complete::{none_of, space1},
+    combinator::{eof, peek},
+    combinator::{opt, recognize},
     error::ParseError,
     multi::many0,
-    multi::many1,
+    multi::{count, many1},
     sequence::delimited,
-    sequence::{preceded, separated_pair, terminated},
+    sequence::{pair, preceded, separated_pair, terminated},
     AsChar, IResult, InputTakeAtPosition, Parser,
 };
 
@@ -76,9 +76,15 @@ pub fn parse(file_name: &str) -> Result<ParseResult> {
 
 /// Parses a raw string
 fn basic(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    let (other, contents) = is_not("`*\n\r#$_[")(input)?;
+    let (other, contents) = many1(alt((
+        recognize(pair(tag("$"), is_a(" ?!.,;"))),
+        recognize(is_not("`*\r\n#_[$")),
+    )))(input)?;
+
+    // contents.sy
+
     let raw = Box::new(knots_objects::BasicText {
-        contents: contents.to_owned(),
+        contents: contents.into_iter().fold(String::new(), |acc, x| acc + x),
     });
 
     Ok((other, raw))
@@ -136,11 +142,16 @@ fn inline_code(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
 
 /// Parses inline maths
 fn inline_maths(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    let (other, contents) = delimited(tag("$"), is_not("$"), tag("$"))(input)?;
+    // do not match sequences with the first character after the dollar sign being punctuation or space.
+    // This is to avoid false positives when using text like "this costs 300$ at this store"
+    let (other, contents) = delimited(
+        pair(tag("$"), peek(none_of(" ?!.,;"))),
+        is_not("$"),
+        tag("$"),
+    )(input)?;
     let maths_obj = Box::new(knots_objects::InlineMaths {
         contents: contents.to_owned(),
     });
-
     Ok((other, maths_obj))
 }
 
@@ -173,7 +184,7 @@ where
     delimited(space0, input, space0)
 }
 
-/// Parses a Knot.s variable name and contents
+/// Parses a Knot.s variable name
 fn variable(input: &str) -> IResult<&str, &str> {
     preceded(tag("%"), alpha1)(input)
 }
@@ -288,23 +299,35 @@ fn maths_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, maths_obj))
 }
 
-fn list_item(input: &str) -> IResult<&str, Vec<Box<dyn KnotsObject>>> {
-    let (other, mut first_contents) =
-        delimited(tag("-"), ws(many1(any_text_modifier)), eolf)(input)?;
-    // does the list item continue on the next line ?
-    let (other, next_contents) = opt(preceded(space1, many1(alt((list, paragraph)))))(other)?;
+/// Parses a list bullet
+fn list_item(input: &str, level: u8) -> IResult<&str, Vec<Box<dyn KnotsObject>>> {
+    // this item belongs to the list only if it has the right tabulation
+    let indent_level = alt((
+        count(tag(" "), (4 * level) as usize),
+        count(tag("\t"), level as usize),
+    ));
 
-    // unify both vectors
-    if let Some(mut contents) = next_contents {
-        first_contents.append(&mut contents);
-    }
+    let (other, first_contents) = preceded(pair(indent_level, tag("-")), paragraph)(input)?;
 
-    Ok((other, first_contents))
+    // similarly, the next line belongs to this list item only if it has the right tabulation
+    let next_indent_level = alt((
+        count(tag(" "), 4 * (level + 1) as usize),
+        count(tag("\t"), (level + 1) as usize),
+    ));
+
+    let (other, mut next_contents) = many0(alt((
+        |input| list(input, level + 1),
+        preceded(next_indent_level, paragraph),
+    )))(other)?;
+
+    next_contents.insert(0, first_contents);
+
+    Ok((other, next_contents))
 }
 
 // Parses a list
-fn list(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    let (other, contents) = many1(list_item)(input)?;
+fn list(input: &str, level: u8) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, contents) = many1(|input| list_item(input, level))(input)?;
     let list_obj = Box::new(knots_objects::List { contents });
     Ok((other, list_obj))
 }
@@ -325,8 +348,6 @@ fn image(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
 
 /// Parses an object contained on one line
 fn any_object(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
-    multispace0(input)?;
-
     delimited(
         multispace0,
         alt((
@@ -334,7 +355,7 @@ fn any_object(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
             lvl3_title,
             lvl2_title,
             lvl1_title,
-            list,
+            |input| list(input, 0),
             code_block,
             maths_block,
             image,

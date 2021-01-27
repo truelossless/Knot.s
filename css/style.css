@@ -118,6 +118,7 @@ blockquote {
 }
 
 .flex-container {
+  width: 100%;
   display: flex;
   flex-flow: row wrap-reverse;
 }
@@ -171,6 +172,7 @@ blockquote {
 }
 
 .main-content {
+  width: 100%;
   margin-top: 50px;
   flex-basis: 700px;
   flex-grow: 9999;
@@ -265,6 +267,7 @@ blockquote {
 }
 
 .codeblock {
+  width: 100%;
   margin-top: 50px !important;
   margin-bottom: 50px !important;
 }
@@ -312,9 +315,10 @@ blockquote {
 .infobox svg,
 .warningbox svg,
 .errorbox svg {
+  flex: 0 0 2em;
   top: 0;
   font-size: 2em;
-  margin-right: 30px;
+  margin-right: 20px;
 }
 
 .discreet {

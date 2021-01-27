@@ -72,10 +72,16 @@ Where does this come from ?
 
 x> And here we go :S
 
-## (Bugged) Lists :3
+## (Not bugged anymore) Lists :3
 
 - First item
-  More content on this first item ...
+    More content on this first item ...
+    - Nested sublist
+    - Another good point
+        - Nested nested sublist !!
+        Incredible, isn't it ?
 - Second item
+- Third item
 
-As you can see it's not working correctly :S
+As you can see it's **now** working correctly !
+You however need to use one tabulation or four spaces for it to be working correctly !

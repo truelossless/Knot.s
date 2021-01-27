@@ -18,13 +18,12 @@ It translates a Knot.s Markdown file to a self-contained HTML file, or to a PDF.
 ### Not supported yet (but easy to add :D)
 
 - Tables
-- Lists
-- Quotes
 
 ### Planned
 
 - Implement all of the above
-- Warning/Error/Info boxes
+- Mermaid graphs
+- smart syntax highlighting for code blocks
 
 ## Installation
 
@@ -84,6 +83,41 @@ function helloWorld() {
 ```⠀
 ````
 
+### Block Quotes
+
+Start a quote with `>`. Example:
+
+```
+Mandela once said:
+> Hello World !
+```
+
+### Lists
+
+Start a list with `-`. Example:
+
+```
+- Some item
+    Description of the item
+- Another item
+    Description of this other item
+- Last item
+    - Nested list about this last item
+    - another element in the nested list
+```
+
+To add a text or a nested list inside an item, ident with 4 spaces or 1 tab. 
+
+### Boxes
+
+Inform `?>`, warn `!>` or scare `x>` your readers with boxes. Example:
+
+```
+?> This is an info box
+!> This is a warning box
+x> This is an error box
+```
+
 ### HTML
 
 You can also write HTML/JS/CSS everywhere.
@@ -126,6 +160,7 @@ will set the license to MIT
 - Normalize.css for cross-browser consistency
 - PrismJS for code highlighting
 - Katex for LaTeX rendering
+- css.gg for the sexy icons
 
 ## Why ?
 

@@ -65,7 +65,7 @@ pub fn transpile(parse_result: ParseResult, options: KnotsOptions) -> String {
     // put everything in a flex container
     builder.start_tag("div", &[("class", "flex-container")]);
     builder.start_tag("div", &[("class", "main-content")]);
-    builder.start_tag("div", &[("class", "lvl1-container")]);
+    builder.start_tag("div", &[("class", "container-lvl1")]);
     builder.write_knots_object(parse_result.root_object);
     builder.end_tag(); // </div> .lvl1-container
 
@@ -83,7 +83,7 @@ pub fn transpile(parse_result: ParseResult, options: KnotsOptions) -> String {
 
     builder.end_tag(); // </div> .main-content
 
-    if options.summary {
+    if options.summary && !builder.get_summary().is_empty() {
         builder.start_tag("div", &[("class", "summary-container")]);
         builder.start_tag("div", &[("class", "summary")]);
         builder.inline_tag("p", &[], "Summary");

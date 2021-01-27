@@ -9,6 +9,6 @@ edition = "2018"
 [dependencies]
 base64 = "0.13.0"
 gumdrop = "0.8.0"
-nom = "6.0.1"
+nom = "6.1.0"
 anyhow = "1.0.34"
 wkhtmltopdf = "0.3.0"
