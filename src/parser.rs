@@ -58,7 +58,7 @@ pub fn parse(file_name: &str) -> Result<ParseResult> {
 
     let document_title = document_title.unwrap_or_else(|| file_name.to_owned());
 
-    let (other, contents) = many0(any_object)(other).unwrap();
+    let (other, contents) = delimited(multispace0, many0(any_object), multispace0)(other).unwrap();
 
     let root_object = Box::new(knots_objects::Root { contents });
 
@@ -78,11 +78,8 @@ pub fn parse(file_name: &str) -> Result<ParseResult> {
 fn basic(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, contents) = many1(alt((
         recognize(pair(tag("$"), is_a(" ?!.,;"))),
-        recognize(is_not("`*\r\n#_[$")),
+        recognize(is_not("`*\r\n#_[$|")),
     )))(input)?;
-
-    // contents.sy
-
     let raw = Box::new(knots_objects::BasicText {
         contents: contents.into_iter().fold(String::new(), |acc, x| acc + x),
     });
@@ -210,6 +207,7 @@ fn block_quote(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, quote_obj))
 }
 
+/// Parses an info box
 fn info_box(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, contents) = delimited(tag("?>"), many1(any_text_modifier), eolf)(input)?;
     let box_obj = Box::new(knots_objects::InfoBox { contents });
@@ -217,6 +215,7 @@ fn info_box(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, box_obj))
 }
 
+/// Parses a warning box
 fn warning_box(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, contents) = delimited(tag("!>"), many1(any_text_modifier), eolf)(input)?;
     let box_obj = Box::new(knots_objects::WarningBox { contents });
@@ -224,6 +223,7 @@ fn warning_box(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, box_obj))
 }
 
+/// Parses an error box
 fn error_box(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, contents) = delimited(tag("x>"), many1(any_text_modifier), eolf)(input)?;
     let box_obj = Box::new(knots_objects::ErrorBox { contents });
@@ -283,7 +283,7 @@ fn code_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
 
     let code_obj = Box::new(knots_objects::CodeBlock {
         contents: contents.to_owned(),
-        lang: lang.map(String::from),
+        lang: lang.unwrap_or_default().to_owned(),
     });
 
     Ok((other, code_obj))
@@ -332,6 +332,37 @@ fn list(input: &str, level: u8) -> IResult<&str, Box<dyn KnotsObject>> {
     Ok((other, list_obj))
 }
 
+/// Parses the delimiter after the table header e.g |---|---|
+fn table_delimiter(input: &str) -> IResult<&str, ()> {
+    let (other, _) = many1(pair(tag("|"), many1(tag("-"))))(input)?;
+    let (other, _) = pair(tag("|"), ws(eolf))(other)?;
+    Ok((other, ()))
+}
+
+/// Parses a table row
+fn table_row(input: &str) -> IResult<&str, Vec<Vec<Box<dyn KnotsObject>>>> {
+    // match the field name
+    let (other, fields) = many1(delimited(
+        tag("|"),
+        ws(many0(any_text_modifier)),
+        peek(tag("|")),
+    ))(input)?;
+
+    // match the last closing pipe
+    let (other, _) = pair(tag("|"), eolf)(other)?;
+    Ok((other, fields))
+}
+
+/// Parses a table
+fn table(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
+    let (other, header) = table_row(input)?;
+    let (other, _) = table_delimiter(other)?;
+    let (other, rows) = many1(table_row)(other)?;
+
+    let table_obj = Box::new(knots_objects::Table { header, rows });
+    Ok((other, table_obj))
+}
+
 /// Parses an image
 fn image(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, _) = tag("!")(input)?;
@@ -356,6 +387,7 @@ fn any_object(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
             lvl2_title,
             lvl1_title,
             |input| list(input, 0),
+            table,
             code_block,
             maths_block,
             image,

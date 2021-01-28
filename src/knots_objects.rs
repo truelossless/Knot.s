@@ -158,6 +158,42 @@ impl KnotsObject for List {
     }
 }
 
+pub struct Table {
+    pub header: Vec<Vec<Box<dyn KnotsObject>>>,
+    // yeah, that's a lot of vec
+    pub rows: Vec<Vec<Vec<Box<dyn KnotsObject>>>>,
+}
+
+impl KnotsObject for Table {
+    fn write_html(&self, builder: &mut Builder) {
+        builder.start_tag("table", &[]);
+
+        builder.start_tag("tr", &[]);
+
+        for cell in &self.header {
+            builder.start_tag("th", &[]);
+            builder.write_knots_objects(cell);
+            builder.end_tag(); // </td>
+        }
+
+        builder.end_tag(); // </th>
+
+        for row in &self.rows {
+            builder.start_tag("tr", &[]);
+
+            for cell in row {
+                builder.start_tag("td", &[]);
+                builder.write_knots_objects(cell);
+                builder.end_tag(); // </td>
+            }
+
+            builder.end_tag() // </tr>
+        }
+
+        builder.end_tag(); // </table>
+    }
+}
+
 pub struct BasicText {
     pub contents: String,
 }
@@ -270,7 +306,7 @@ impl KnotsObject for InlineMaths {
 
 pub struct CodeBlock {
     pub contents: String,
-    pub lang: Option<String>,
+    pub lang: String,
 }
 
 impl KnotsObject for CodeBlock {
@@ -282,12 +318,7 @@ impl KnotsObject for CodeBlock {
         builder.start_tag("div", &[("class", "container-lg")]);
 
         builder.start_tag("pre", &[("class", "codeblock")]);
-        if let Some(lang) = &self.lang {
-            let lang_class = format!("language-{}", lang);
-            builder.start_tag("code", &[("class", &lang_class)]);
-        } else {
-            builder.start_tag("code", &[]);
-        };
+        builder.start_tag("code", &[("class", &format!("language-{}", self.lang))]);
         builder.write_content(&escape_html(&self.contents));
         builder.end_tag(); // </pre>
         builder.end_tag(); // </code>

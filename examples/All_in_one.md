@@ -83,5 +83,13 @@ x> And here we go :S
 - Second item
 - Third item
 
-As you can see it's **now** working correctly !
-You however need to use one tabulation or four spaces for it to be working correctly !
+Make sure to use one tabulation or four spaces for it to be working correctly !
+
+# Tables for everyone !!
+
+| topic       | description                                 |
+|-------------|---------------------------------------------|
+| gaming      | playing video games with friends            |
+| cooking     | making *good* recipes                       |
+| hiking      | walking in moutains is **hard**             |
+| programming | using the computer to produce fancy visuals |

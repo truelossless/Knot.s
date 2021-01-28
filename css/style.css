@@ -19,6 +19,7 @@ body {
   line-height: 2em;
   background-color: #fff;
   color: black;
+  margin-bottom: 25px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -68,6 +69,45 @@ svg {
   top: 0.18em;
   height: 1em;
   width: 1em;
+}
+
+table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-collapse: collapse;
+  max-width: 100%;
+}
+
+tr {
+  width: 100%;
+}
+
+tr:nth-child(odd) {
+  background: #eee;
+}
+
+@media (prefers-color-scheme: dark) {
+  tr:nth-child(odd) {
+    background: #262626;
+  }
+}
+
+td,
+th {
+  padding: 3px 20px;
+  border: 1px solid #444;
+}
+
+th {
+  font-family: "Open Sans", Arial, Helvetica, sans-serif;
+  background: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  th {
+    background: #222;
+  }
 }
 
 header {
@@ -274,6 +314,7 @@ blockquote {
 
 .mathsblock {
   font-size: 1.2em;
+  margin: 50px auto;
 }
 
 .infobox,
@@ -332,5 +373,5 @@ blockquote {
 }
 
 #license {
-  margin: 100px auto 25px auto;
+  margin: 100px auto 0 auto;
 }

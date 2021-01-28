@@ -3,6 +3,8 @@
 Knot.s is a superset of Markdown allowing you to take notes efficently.  
 It translates a Knot.s Markdown file to a self-contained HTML file, or to a PDF.
 
+![Knot.s image](https://i.imgur.com/8D29YAN.png)
+
 ## Features
 
 - Write Markdown and render to beautiful HTML / PDF
@@ -15,15 +17,10 @@ It translates a Knot.s Markdown file to a self-contained HTML file, or to a PDF.
 - Responsive Design
 - No third-party dependency besides the .dll file included
 
-### Not supported yet (but easy to add :D)
-
-- Tables
-
 ### Planned
 
-- Implement all of the above
 - Mermaid graphs
-- smart syntax highlighting for code blocks
+- Smart syntax highlighting for code blocks
 
 ## Installation
 
