@@ -59,16 +59,9 @@ hr {
 
 img {
   display: block;
-  width: 100%;
+  max-width: 100%;
   height: auto;
   margin: 50px auto;
-}
-
-svg {
-  position: relative;
-  top: 0.18em;
-  height: 1em;
-  width: 1em;
 }
 
 table {
@@ -140,6 +133,13 @@ blockquote {
     border-color: #aaa;
     color: #ccc;
   }
+}
+
+.icon {
+  position: relative;
+  top: 0.18em;
+  height: 1em;
+  width: 1em;
 }
 
 #doctitle {
@@ -315,6 +315,11 @@ blockquote {
 .mathsblock {
   font-size: 1.2em;
   margin: 50px auto;
+}
+
+.mermaid {
+  width: 100%;
+  text-align: center;
 }
 
 .infobox,

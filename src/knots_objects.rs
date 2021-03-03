@@ -312,6 +312,7 @@ pub struct CodeBlock {
 impl KnotsObject for CodeBlock {
     fn write_html(&self, builder: &mut Builder) {
         builder.should_include_prism = true;
+        builder.languages.insert(self.lang.clone());
 
         // switch to a container-lg div to have a wider code block
         builder.end_tag(); // </div>
@@ -342,5 +343,18 @@ impl KnotsObject for MathsBlock {
         builder.start_tag("div", &[("id", &el_id), ("class", "mathsblock")]);
         builder.end_tag(); // </div>
         builder.write_katex_content(&self.contents, &el_id);
+    }
+}
+
+pub struct Mermaid {
+    pub contents: String,
+}
+
+impl KnotsObject for Mermaid {
+    fn write_html(&self, builder: &mut Builder) {
+        builder.should_include_mermaid = true;
+        builder.start_tag("div", &[("class", "mermaid")]);
+        builder.write_content(&self.contents);
+        builder.end_tag(); // </div>
     }
 }

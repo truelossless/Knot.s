@@ -29,7 +29,7 @@ pub fn transpile(parse_result: ParseResult, options: KnotsOptions) -> String {
     // normalize css
     builder.start_tag("style", &[]);
     builder.write_content(include_str!("../css/normalize.css"));
-    builder.end_tag();
+    builder.end_tag(); // </style>
 
     // our own css
     builder.start_tag("style", &[]);
@@ -44,7 +44,7 @@ pub fn transpile(parse_result: ParseResult, options: KnotsOptions) -> String {
     // document title
     builder.start_tag("p", &[("id", "doctitle")]);
     builder.write_content(&parse_result.document_title);
-    builder.end_tag(); // </h1>
+    builder.end_tag(); // </p>
 
     // document authors
     if !parse_result.document_authors.is_empty() {
@@ -136,6 +136,23 @@ pub fn transpile(parse_result: ParseResult, options: KnotsOptions) -> String {
 
         builder.start_tag("script", &[]);
         builder.write_content(include_str!("../js/prism.js"));
+
+        for plugin in builder.get_prism_plugins() {
+            builder.write_content(plugin);
+        }
+
+        builder.end_tag(); // </script>
+    }
+
+    // if we have a diagram then include mermaid
+    if builder.should_include_mermaid {
+        builder.start_tag("script", &[]);
+        builder.write_content(include_str!("../js/mermaid.js"));
+        builder.end_tag(); // </script>
+
+        builder.start_tag("script", &[]);
+        // set the mermaid theme according to the browser theme
+        builder.write_content("mermaid.initialize({theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'base'})");
         builder.end_tag(); // </script>
     }
 

@@ -281,12 +281,23 @@ fn code_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     let (other, _) = line_ending(other)?;
     let (other, contents) = terminated(take_until("```"), tag("```"))(other)?;
 
-    let code_obj = Box::new(knots_objects::CodeBlock {
-        contents: contents.to_owned(),
-        lang: lang.unwrap_or_default().to_owned(),
-    });
+    let lang = lang.unwrap_or_default().to_lowercase();
 
-    Ok((other, code_obj))
+    // if the language annotation is mermaid, render as a mermaid diagram
+    if lang == "mermaid" {
+        let mermaid_obj = Box::new(knots_objects::Mermaid {
+            contents: contents.to_owned(),
+        });
+        Ok((other, mermaid_obj))
+
+    // else it's a prism code block
+    } else {
+        let code_obj = Box::new(knots_objects::CodeBlock {
+            contents: contents.to_owned(),
+            lang: lang.to_owned(),
+        });
+        Ok((other, code_obj))
+    }
 }
 
 /// Parses a maths block

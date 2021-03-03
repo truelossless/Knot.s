@@ -1,6 +1,7 @@
 mod builder;
 mod knots_objects;
 mod parser;
+mod prism_autoloader;
 mod transpiler;
 mod utils;
 
@@ -23,7 +24,7 @@ struct MyOptions {
     #[options(no_short, help = "don't create a summary")]
     no_summary: bool,
 
-    #[options(help = "show knots version")]
+    #[options(help = "show Knots version")]
     version: bool,
 
     #[options(help = "show help message")]

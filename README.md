@@ -19,8 +19,7 @@ It translates a Knot.s Markdown file to a self-contained HTML file, or to a PDF.
 
 ### Planned
 
-- Mermaid graphs
-- Smart syntax highlighting for code blocks
+- Replace wkhtmltopdf because of the rendering issues
 
 ## Installation
 

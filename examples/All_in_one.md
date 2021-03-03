@@ -11,7 +11,7 @@ HEY LOOK I'M _ SUPER **BOLD** _
 
 ## A sketchy first point
 
-Let's talk about **something** here !
+Let's talk about **something** here!
 
 <b>With some HTML to spice things up</b>
 
@@ -41,12 +41,12 @@ function transpile() {
 
 # Another important topic to bring up
 
-Can you guess the subject of this one ?
-Click this [link](https://google.fr) to find out !
+Can you guess the subject of this one?
+Click this [link](https://google.fr) to find out!
 
 ## First point
 
-Hehe there's still more to read there !
+Hehe there's still more to read there!
 
 ---
 
@@ -54,7 +54,7 @@ Here's a picture for you:
 
 ![cat](https://i.ytimg.com/vi/0oBx7Jg4m-o/maxresdefault.jpg)
 
-You can also include local pictures, and it will be embedded in the pdf / html !
+You can also include local pictures, and it will be embedded in the pdf / html!
 
 ## Random citation
 
@@ -62,13 +62,13 @@ Here's a quote for you:
 
 > Hey look buddy, I'm an engineer. That means I solve problems, not problems like "What is beauty?" Because that would fall within the purview of your conundrums of philosophy. I solve practical problems, for instance: how am I going to stop some mean mother Hubbard from tearing me a structurally superfluous be-hind? The answer, use a gun, and if that don't work... Use more gun. Take for instance this heavy caliber tripod mounted lil' old number designed by me, built by me, and you best hope... Not pointed at you.
 
-Where does this come from ?
+Where does this come from?
 
 ## Sexy Boxes :3
 
-?> Be careful of what you're doing !
+?> Be careful of what you're doing!
 
-!> You could **DESTROY** something !
+!> You could **DESTROY** something!
 
 x> And here we go :S
 
@@ -78,14 +78,17 @@ x> And here we go :S
     More content on this first item ...
     - Nested sublist
     - Another good point
-        - Nested nested sublist !!
-        Incredible, isn't it ?
+        - Nested nested sublist!!
+        Incredible, isn't it?
 - Second item
 - Third item
 
 Make sure to use one tabulation or four spaces for it to be working correctly !
 
-# Tables for everyone !!
+# Hot new features right there B)
+
+## Tables for everyone!!
+
 
 | topic       | description                                 |
 |-------------|---------------------------------------------|
@@ -93,3 +96,21 @@ Make sure to use one tabulation or four spaces for it to be working correctly !
 | cooking     | making *good* recipes                       |
 | hiking      | walking in moutains is **hard**             |
 | programming | using the computer to produce fancy visuals |
+
+## Mermaid diagrams
+
+Mermaid diagrams baby! You can sketch diagrams in a markdownish flavor. This one is from the official docs. You know what's even crazier? They are dark-theme compatible!
+
+```mermaid
+sequenceDiagram
+    participant Alice
+    participant Bob
+    Alice->>John: Hello John, how are you?
+    loop Healthcheck
+        John->>John: Fight against hypochondria
+    end
+    Note right of John: Rational thoughts <br/>prevail!
+    John-->>Alice: Great!
+    John->>Bob: How about you?
+    Bob-->>John: Jolly good!
+```

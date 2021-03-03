@@ -96,6 +96,7 @@ dependencies = [
  "anyhow",
  "base64",
  "gumdrop",
+ "lazy_static 1.4.0",
  "nom",
  "wkhtmltopdf",
 ]
@@ -105,6 +106,12 @@ name = "lazy_static"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "76f033c7ad61445c5b347c7382dd1237847eb1bce590fe50365dcb33d546be73"
+
+[[package]]
+name = "lazy_static"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "lexical-core"
@@ -316,7 +323,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c3079504be94561a520435e6ca30fae0fa1128c01ea232a22667e16cb57244d"
 dependencies = [
- "lazy_static",
+ "lazy_static 0.2.11",
  "log 0.3.9",
  "quick-error",
  "thread-id",

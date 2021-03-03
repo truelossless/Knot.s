@@ -1,3 +1,6 @@
+use crate::prism_autoloader;
+use std::collections::HashSet;
+
 use super::knots_objects::KnotsObject;
 use super::utils::{escape_latex, get_alpha_numeral, get_roman_numeral};
 
@@ -9,6 +12,7 @@ pub struct Title {
 }
 
 /// A Builder used to generate HTML tags from Knot.s objects.
+#[derive(Default)]
 pub struct Builder {
     /// the text buffer where all tags are stored once finished
     buf: String,
@@ -20,6 +24,8 @@ pub struct Builder {
     pub should_include_prism: bool,
     /// should we include katex ?
     pub should_include_katex: bool,
+    /// should we include mermaid ?
+    pub should_include_mermaid: bool,
     /// keep track of the current container class
     pub current_container: String,
     /// the number of lv1 titles
@@ -30,25 +36,16 @@ pub struct Builder {
     titles: Vec<Title>,
     /// the number of maths blocks
     pub maths_blocks: usize,
-    /// We need to populate katex blocks after the script inclusion
+    /// we need to populate katex blocks after the script inclusion
     katex_buf: String,
+    /// the different programming languages used in the document
+    pub languages: HashSet<String>,
 }
 
 impl Builder {
+    #[inline]
     pub fn new() -> Self {
-        Self {
-            buf: String::new(),
-            indentation: 0,
-            tags_queue: Vec::new(),
-            should_include_prism: false,
-            should_include_katex: false,
-            current_container: String::new(),
-            lv1_titles: 0,
-            lv2_titles: 0,
-            titles: Vec::new(),
-            maths_blocks: 0,
-            katex_buf: String::new(),
-        }
+        Self::default()
     }
 
     /// Prints the resulting buffer to stdout
@@ -113,6 +110,11 @@ impl Builder {
     /// Returns the katex buffer referencing all html elements and their latex contents
     pub fn get_katex_content(&self) -> String {
         self.katex_buf.clone()
+    }
+
+    /// Returns the different prism plugins to be included
+    pub fn get_prism_plugins(&mut self) -> Vec<&'static str> {
+        prism_autoloader::find_plugins(&self.languages.drain().collect::<Vec<_>>())
     }
 
     /// Writes a Knots object
