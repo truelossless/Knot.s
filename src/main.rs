@@ -43,14 +43,14 @@ struct MyOptions {
 pub fn main() {
     let opts = MyOptions::parse_args_default_or_exit();
 
-    if opts.input.len() != 1 {
-        eprintln!("No file input");
-        process::exit(1);
-    }
-
     if opts.version {
         println!(env!("CARGO_PKG_VERSION"));
         process::exit(0);
+    }
+
+    if opts.input.len() != 1 {
+        eprintln!("No file input");
+        process::exit(1);
     }
 
     let pdf_output;

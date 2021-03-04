@@ -31,12 +31,14 @@ jobs:
           cargo build --release
 
       - name: Upload Knots [windows]
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v2
         with:
           name: knots-${{ matrix.os }}
           path: target/release/knots.exe
 
       - name: Upload Knots [unix]
+        if: matrix.os != 'windows-latest'
         uses: actions/upload-artifact@v2
         with:
           name: knots-${{ matrix.os }}
@@ -86,7 +88,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./windows/knots.exe
-          asset_name: knots-${{ steps.commit.outputs.hash }}.exe
+          asset_name: knots-windows-${{ steps.commit.outputs.hash }}.exe
           asset_content_type: application/x-msdownload
 
       - name: upload Linux binary
@@ -96,7 +98,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./linux/knots
-          asset_name: knots-${{ steps.commit.outputs.hash }}
+          asset_name: knots-linux-${{ steps.commit.outputs.hash }}
           asset_content_type: application/x-elf
 
       - name: upload MacOS binary
@@ -106,5 +108,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./macos/knots
-          asset_name: knots-${{ steps.commit.outputs.hash }}
+          asset_name: knots-macos-${{ steps.commit.outputs.hash }}-$
           asset_content_type: application/x-elf
