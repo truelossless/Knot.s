@@ -18,7 +18,7 @@ Let's talk about **something** here!
 Here's a block of LaTeX
 
 $$
-f'(x) = \dfrac{2x}{\sqrt{3x}}
+f'(x) = \dfrac{2x}{\sqrt{3x}} \\
 \int_{0}^{\pi} sin(x) dx
 $$
 

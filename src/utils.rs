@@ -40,15 +40,6 @@ pub fn get_alpha_numeral(mut num: usize) -> String {
     ALPHABET[num..num + 1].to_owned()
 }
 
-/// Wkhtmltopdf 0.12 doesn't support template literals 🤣🤣🤣🔫
-pub fn escape_latex(input: &str) -> String {
-    let mut res = input.replace("\r\n", "\n");
-    res = res.replace("\n", r#"\\"#);
-    res = res.replace("\\", r#"\\"#);
-    res = res.replace("'", r#"\'"#);
-    res
-}
-
 /// Escapes an HTML string
 // While we allow our users to directly write HTML,
 // we shouldn't render it in code blocks.

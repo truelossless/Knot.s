@@ -3,7 +3,7 @@ use base64::encode;
 use super::builder::Builder;
 use super::utils::escape_html;
 
-/// Trait representing any Knot.s Object.
+/// Trait representing any Knots Object.
 pub trait KnotsObject {
     fn write_html(&self, _builder: &mut Builder) {
         unimplemented!();

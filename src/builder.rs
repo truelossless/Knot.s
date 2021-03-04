@@ -2,7 +2,7 @@ use crate::prism_autoloader;
 use std::collections::HashSet;
 
 use super::knots_objects::KnotsObject;
-use super::utils::{escape_latex, get_alpha_numeral, get_roman_numeral};
+use super::utils::{get_alpha_numeral, get_roman_numeral};
 
 #[derive(Clone)]
 pub struct Title {
@@ -11,7 +11,7 @@ pub struct Title {
     pub anchor: String,
 }
 
-/// A Builder used to generate HTML tags from Knot.s objects.
+/// A Builder used to generate HTML tags from Knots objects.
 #[derive(Default)]
 pub struct Builder {
     /// the text buffer where all tags are stored once finished
@@ -98,11 +98,8 @@ impl Builder {
     /// Links a div with its katex content
     pub fn write_katex_content(&mut self, content: &str, el_id: &str) {
         self.katex_buf += &format!(
-            // Chromium had a long-standing bug with text rendering when elements have small em values.
-            // This is why we have to increase minRuleThickness to have the proper output in wkhtmltopdf.
-            "katex.render('{}', document.getElementById('{}'), {{ throwOnError: false, minRuleThickness: 0.06 }});",
-            escape_latex(content),
-            el_id
+            "katex.render(String.raw`{}`, document.getElementById('{}'), {{ throwOnError: false }});",
+            content, el_id
         );
         self.katex_buf.push('\n');
     }

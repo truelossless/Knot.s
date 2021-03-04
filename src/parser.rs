@@ -1,5 +1,4 @@
-use anyhow::{Context, Result};
-use std::fs::read_to_string;
+use std::{fs::read_to_string, process};
 
 use crate::knots_objects;
 
@@ -35,10 +34,10 @@ pub struct ParseResult {
 }
 
 /// Parses a .knots file
-pub fn parse(file_name: &str) -> Result<ParseResult> {
+pub fn parse(file_name: &str) -> Result<ParseResult, String> {
     // parse the file
     let input =
-        read_to_string(file_name).with_context(|| format!("Failed to open file {}", file_name))?;
+        read_to_string(file_name).map_err(|_| format!("Failed to open file {}", file_name))?;
 
     // start by getting all the variables
     let (other, variables) = many0(var_pair)(&input).unwrap();
@@ -47,12 +46,12 @@ pub fn parse(file_name: &str) -> Result<ParseResult> {
     let mut document_license = None;
     let mut document_authors = Vec::new();
 
-    for variable in variables {
-        match variable.0 {
-            "title" => document_title = Some(variable.1.to_owned()),
-            "author" => document_authors.push(variable.1.to_owned()),
-            "license" => document_license = Some(variable.1.to_owned()),
-            _ => eprintln!("unknown metadata: {}", variable.0),
+    for (var_name, var_content) in variables {
+        match var_name {
+            "title" => document_title = Some(var_content.to_owned()),
+            "author" => document_authors.push(var_content.to_owned()),
+            "license" => document_license = Some(var_content.to_owned()),
+            _ => eprintln!("unknown metadata: {}", var_name),
         }
     }
 
@@ -63,7 +62,14 @@ pub fn parse(file_name: &str) -> Result<ParseResult> {
     let root_object = Box::new(knots_objects::Root { contents });
 
     if !other.is_empty() {
-        eprintln!("parser did not finish correctly ! '{}' remains", other);
+        let first_errored_line = other.lines().next().unwrap();
+
+        eprintln!(
+            "Parser failed! Incorrect syntax on this line:\n{}",
+            first_errored_line
+        );
+
+        process::exit(1);
     }
 
     Ok(ParseResult {
@@ -181,7 +187,7 @@ where
     delimited(space0, input, space0)
 }
 
-/// Parses a Knot.s variable name
+/// Parses a Knots variable name
 fn variable(input: &str) -> IResult<&str, &str> {
     preceded(tag("%"), alpha1)(input)
 }
@@ -294,7 +300,7 @@ fn code_block(input: &str) -> IResult<&str, Box<dyn KnotsObject>> {
     } else {
         let code_obj = Box::new(knots_objects::CodeBlock {
             contents: contents.to_owned(),
-            lang: lang.to_owned(),
+            lang,
         });
         Ok((other, code_obj))
     }

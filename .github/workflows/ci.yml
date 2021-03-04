@@ -20,26 +20,27 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
 
     steps:
       - name: Clone project
         uses: actions/checkout@v2
 
-      - name: Build Knot.s release
+      - name: Build Knots release
         run: |
           cargo build --release
 
-      - name: Zip Knot.s
-        run: |
-          mv wkhtmltox.dll target/release/
-          cd target/release
-          7z a knots.zip knots.exe wkhtmltox.dll
-      - name: Upload zip
+      - name: Upload Knots [windows]
         uses: actions/upload-artifact@v2
         with:
           name: knots-${{ matrix.os }}
-          path: target/release/knots.zip
+          path: target/release/knots.exe
+
+      - name: Upload Knots [unix]
+        uses: actions/upload-artifact@v2
+        with:
+          name: knots-${{ matrix.os }}
+          path: target/release/knots
 
   # upload the resulting binaries to github releases
   upload:
@@ -50,6 +51,15 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: knots-windows-latest
+          path: windows
+      - uses: actions/download-artifact@v2
+        with:
+          name: knots-ubuntu-latest
+          path: linux
+      - uses: actions/download-artifact@v2
+        with:
+          name: knots-macos-latest
+          path: macos
 
       # get the commit hash
       # https://github.community/t/add-short-sha-to-github-context/16418/11
@@ -75,6 +85,26 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./knots.zip
-          asset_name: knots-${{ steps.commit.outputs.hash }}.zip
-          asset_content_type: application/zip
+          asset_path: ./windows/knots.exe
+          asset_name: knots-${{ steps.commit.outputs.hash }}.exe
+          asset_content_type: application/x-msdownload
+
+      - name: upload Linux binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./linux/knots
+          asset_name: knots-${{ steps.commit.outputs.hash }}
+          asset_content_type: application/x-elf
+
+      - name: upload MacOS binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./macos/knots
+          asset_name: knots-${{ steps.commit.outputs.hash }}
+          asset_content_type: application/x-elf

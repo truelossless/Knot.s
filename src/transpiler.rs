@@ -5,7 +5,7 @@ pub struct KnotsOptions {
     pub summary: bool,
 }
 
-/// Transpiles to an HTML page our Knot.s objects
+/// Transpiles to an HTML page our Knots objects
 pub fn transpile(parse_result: ParseResult, options: KnotsOptions) -> String {
     let mut builder = Builder::new();
 
@@ -109,10 +109,6 @@ pub fn transpile(parse_result: ParseResult, options: KnotsOptions) -> String {
 
     builder.end_tag(); // </div> .flex-content
 
-    // NOTE: for some reason including katex breaks the font on code blocks in PDFs.
-    // I have no idea why, this behavior is not repoducible on any browser outside the one
-    // used by Wkhtmltopdf.
-    // I've tried several workarounds without success.
     if builder.should_include_katex {
         builder.start_tag("style", &[]);
         builder.write_content(include_str!("../css/katex.css"));
